@@ -1,0 +1,40 @@
+name: CLS to Telegram
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # 每 5 分钟（GitHub 最快粒度，实际可能再延迟几分钟）
+  workflow_dispatch:         # 允许在网页上手动点一次跑（测试用）
+
+permissions:
+  contents: write            # 允许把 state.json 提交回仓库
+
+concurrency:
+  group: cls-to-telegram
+  cancel-in-progress: false  # 防止两次任务并发导致重复推送
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Run
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: python cls_to_telegram.py
+
+      - name: Save state
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json || true
+          git diff --quiet --staged || git commit -m "update state [skip ci]"
+          git push || true
