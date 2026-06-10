@@ -2,7 +2,7 @@ name: CLS to Telegram
 
 on:
   schedule:
-    - cron: '*/5 * * * *'   # 每 5 分钟（GitHub 最快粒度，实际可能再延迟几分钟）
+    - cron: '*/10 * * * *'   # 每 10 分钟（GitHub 最快粒度，实际可能再延迟几分钟）
   workflow_dispatch:         # 允许在网页上手动点一次跑（测试用）
 
 permissions:
